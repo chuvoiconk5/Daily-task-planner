@@ -1,0 +1,2437 @@
+<!DOCTYPE html>
+<html lang="vi"> <!-- Changed lang to Vietnamese -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công việc hàng ngày</title> <!-- Changed title -->
+    <!-- Libraries: Defer loading for better performance -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js" defer></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js" defer></script> <!-- Added Vietnamese locale for Flatpickr -->
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json"> <!-- Adjusted path -->
+    <meta name="theme-color" content="#3b82f6">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --secondary: #ef4444;
+            --accent: #f59e0b;
+            --bg-light: #f9fafb;
+            --bg-dark: #1f2937;
+            --text-light: #111827;
+            --text-dark: #f3f4f6;
+            --glass-bg: rgba(255, 255, 255, 0.2);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            --success: #10b981; /* Added success color */
+            /* Added RGB versions for rgba usage */
+            --primary-rgb: 59, 130, 246;
+            --secondary-rgb: 239, 68, 68;
+            --accent-rgb: 245, 158, 11;
+            --text-light-rgb: 17, 24, 39;
+        }
+
+        [data-theme="dark"] {
+            --bg-light: #1f2937;
+            --text-light: #f3f4f6;
+            --glass-bg: rgba(0, 0, 0, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --text-light-rgb: 243, 244, 246; /* Update text RGB for dark theme */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(145deg, #e0f2fe, var(--bg-light));
+            color: var(--text-light);
+            min-height: 100vh;
+            padding: 24px;
+            transition: background 0.6s ease, color 0.6s ease;
+            position: relative;
+            overflow-x: hidden; /* Prevent horizontal scroll on body */
+        }
+
+        .container {
+            max-width: 1320px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.8rem;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 2.2rem;
+            letter-spacing: -0.015em;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: color 0.6s ease;
+        }
+
+        /* --- Date Pickers --- */
+        .date-picker {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .date-picker input,
+        .history .date-picker-wrapper input { /* Style both similarly initially */
+            padding: 0.9rem 1.2rem;
+            font-size: 1.05rem;
+            border: none;
+            border-radius: 14px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            width: 260px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, border 0.3s ease, color 0.3s ease;
+        }
+
+        .date-picker input:focus,
+        .history .date-picker-wrapper input:focus {
+            outline: none;
+            transform: scale(1.04);
+            box-shadow: 0 0 14px rgba(var(--primary-rgb), 0.5);
+        }
+
+        /* --- History Date Picker Specific Style --- */
+        .history .date-picker-wrapper {
+             margin-bottom: 1.5rem; /* Space below the picker */
+             margin-top: 0.5rem; /* Space above the picker */
+        }
+        .history .date-picker-wrapper input {
+             width: 280px; /* Slightly wider for better look */
+             font-size: 1rem; /* Slightly smaller font */
+             padding: 0.8rem 1.1rem; /* Adjust padding */
+             border-radius: 12px; /* Slightly smaller radius */
+             /* Add a subtle icon */
+             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23${props => props.theme === 'dark' ? 'f3f4f6' : '111827'}' width='18px' height='18px'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z'/%3E%3C/svg%3E");
+             background-repeat: no-repeat;
+             background-position: right 1rem center;
+             background-size: 18px 18px;
+             padding-right: 3rem; /* Make space for the icon */
+             transition: all 0.3s ease; /* Ensure all transitions are smooth */
+        }
+        /* Adjust icon color for dark mode - requires JS or more complex CSS */
+        [data-theme="dark"] .history .date-picker-wrapper input {
+             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f3f4f6' width='18px' height='18px'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z'/%3E%3C/svg%3E");
+        }
+         .history .date-picker-wrapper input:focus {
+             transform: scale(1.02); /* Less pronounced scale */
+             box-shadow: 0 0 12px rgba(var(--primary-rgb), 0.4);
+         }
+
+
+        /* --- Flatpickr Styling --- */
+        .flatpickr-calendar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow);
+            border-radius: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.3s ease, border 0.3s ease;
+            z-index: 100; /* Ensure calendar is above other elements */
+        }
+        .flatpickr-months .flatpickr-month,
+        .flatpickr-weekdays,
+        .flatpickr-current-month .flatpickr-monthDropdown-months,
+        .flatpickr-current-month input.cur-year {
+             background: transparent;
+             color: var(--text-light);
+        }
+        .flatpickr-weekday {
+             font-size: 90%;
+             flex-basis: auto !important; /* Override default flex-basis */
+        }
+        .flatpickr-day {
+            transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+            color: var(--text-light);
+            position: relative;
+        }
+        .flatpickr-day:hover {
+             background: rgba(var(--primary-rgb), 0.2);
+        }
+        .flatpickr-day.selected,
+        .flatpickr-day.startRange,
+        .flatpickr-day.endRange,
+        .flatpickr-day.selected.inRange,
+        .flatpickr-day.startRange.inRange,
+        .flatpickr-day.endRange.inRange,
+        .flatpickr-day.selected:focus,
+        .flatpickr-day.startRange:focus,
+        .flatpickr-day.endRange:focus,
+        .flatpickr-day.selected:hover,
+        .flatpickr-day.startRange:hover,
+        .flatpickr-day.endRange:hover,
+        .flatpickr-day.selected.prevMonthDay,
+        .flatpickr-day.startRange.prevMonthDay,
+        .flatpickr-day.endRange.prevMonthDay,
+        .flatpickr-day.selected.nextMonthDay,
+        .flatpickr-day.startRange.nextMonthDay,
+        .flatpickr-day.endRange.nextMonthDay {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            transform: scale(1.12);
+        }
+        .flatpickr-day.today {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .flatpickr-day.today:not(.selected) {
+             background: transparent;
+        }
+        .flatpickr-day.today.selected {
+             background: var(--primary);
+             border-color: var(--primary);
+             color: white;
+        }
+        .flatpickr-day.flatpickr-disabled,
+        .flatpickr-day.flatpickr-disabled:hover {
+            color: rgba(var(--text-light-rgb), 0.4);
+            background: transparent;
+            cursor: default;
+        }
+        .flatpickr-day.has-task::after {
+            content: '';
+            position: absolute;
+            bottom: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 5px;
+            background: var(--accent);
+            border-radius: 50%;
+            transition: background 0.6s ease;
+        }
+        /* --- End Flatpickr Styling --- */
+
+        /* --- Task Form --- */
+        .task-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 1.2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            padding: 1.8rem;
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2.5rem;
+            transition: background 0.3s ease, border 0.3s ease;
+        }
+
+        .task-form input, .task-form button {
+            padding: 0.9rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.3);
+            color: var(--text-light);
+            transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, color 0.3s ease;
+        }
+        [data-theme="dark"] .task-form input,
+        [data-theme="dark"] .modal-content input {
+             background: rgba(0, 0, 0, 0.2);
+             border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        [data-theme="dark"] .task-form input:focus,
+        [data-theme="dark"] .modal-content input:focus {
+             background: rgba(0, 0, 0, 0.3);
+        }
+
+        .task-form input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 14px rgba(var(--primary-rgb), 0.5);
+            transform: scale(1.03);
+        }
+
+        .task-form button {
+            background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 80%, black));
+            cursor: pointer;
+            font-weight: 600;
+            color: white;
+        }
+
+        .task-form button:hover {
+            background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 80%, black), var(--primary));
+            transform: translateY(-3px);
+            box-shadow: 0 6px 14px rgba(var(--primary-rgb), 0.5);
+        }
+
+        /* --- Task Table & History Table --- */
+        .table-responsive { /* Add wrapper for scrolling */
+             overflow-x: auto;
+             -webkit-overflow-scrolling: touch;
+             margin-bottom: 2.5rem; /* Keep margin on wrapper */
+             /* IMPORTANT: Allow vertical overflow for dropdowns */
+             overflow-y: visible;
+        }
+
+        .task-table, .history table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            /* REMOVED margin-bottom, now on .table-responsive */
+            /* REMOVED overflow: hidden; */
+            transition: background 0.3s ease, border 0.3s ease;
+        }
+
+        .task-table th, .task-table td, .history table th, .history table td {
+            padding: 1.2rem;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+            transition: background 0.3s ease, color 0.3s ease;
+            vertical-align: middle; /* Align content vertically */
+            position: relative; /* Needed for absolute positioned children like dropdown */
+            /* Ensure TD allows overflow for dropdown */
+            overflow: visible;
+        }
+        .task-table tr:last-child td, .history table tr:last-child td {
+             border-bottom: none;
+        }
+
+        .task-table th, .history table th {
+            background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 80%, black));
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.95rem;
+            letter-spacing: 0.06em;
+            transition: background 0.6s ease;
+            position: sticky; /* Keep headers sticky during horizontal scroll */
+            top: 0; /* Required for sticky */
+            z-index: 10; /* Ensure headers are above content */
+        }
+        /* Style first header specifically for rounded corner */
+        .task-table thead tr:first-child th:first-child,
+        .history thead tr:first-child th:first-child {
+            border-top-left-radius: 18px;
+        }
+        /* Style last header specifically for rounded corner */
+        .task-table thead tr:first-child th:last-child,
+        .history thead tr:first-child th:last-child {
+            border-top-right-radius: 18px;
+        }
+
+
+        .task-table tr, .history table tr {
+            transition: background 0.3s ease;
+        }
+
+        .task-table tr.draggable {
+            cursor: move;
+        }
+        .task-table tr.sortable-ghost {
+            opacity: 0.4;
+            background: rgba(var(--primary-rgb), 0.3);
+        }
+
+        .task-table tr:hover, .history table tr:hover {
+            background: rgba(var(--primary-rgb), 0.1);
+        }
+
+        .task-table .task-text, .history table .task-text {
+            font-size: 1rem;
+            color: var(--text-light);
+            font-weight: 400;
+            word-break: break-word;
+            white-space: normal;
+        }
+
+        .task-table .completed .task-text, .history table .completed .task-text {
+            text-decoration: line-through;
+            color: color-mix(in srgb, var(--text-light) 60%, transparent);
+            opacity: 0.75;
+        }
+
+        /* --- Custom Select Styling (Status Dropdown) --- */
+        .custom-select {
+            position: relative;
+            display: inline-block;
+            min-width: 150px;
+            vertical-align: middle;
+        }
+
+        .custom-select select {
+            display: none;
+        }
+
+        .select-selected {
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, border 0.3s ease, color 0.3s ease;
+            min-width: 100%;
+            box-sizing: border-box;
+        }
+        [data-theme="dark"] .select-selected {
+             background: rgba(0, 0, 0, 0.3);
+        }
+
+        .select-selected:after {
+            content: '▼';
+            font-size: 0.7rem;
+            margin-left: 0.6rem;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .select-selected:hover {
+            background: rgba(var(--primary-rgb), 0.15);
+            box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.4);
+            transform: scale(1.03);
+        }
+        [data-theme="dark"] .select-selected:hover {
+             background: rgba(var(--primary-rgb), 0.25);
+        }
+
+        .select-selected.open:after {
+            transform: rotate(180deg);
+        }
+
+        .select-items {
+            position: absolute;
+            background: var(--glass-bg);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            top: calc(100% + 6px); /* Position below the select button */
+            left: 0;
+            min-width: 100%; /* Ensure dropdown is at least as wide as the button */
+            box-sizing: border-box;
+            z-index: 99; /* Ensure it's above table rows BUT below sticky header */
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            transition: background 0.3s ease, border 0.3s ease;
+        }
+        [data-theme="dark"] .select-items {
+             background: color-mix(in srgb, var(--bg-dark) 90%, white);
+        }
+
+        .select-items.show {
+            display: block;
+        }
+
+        .select-items div {
+            /* REDUCED PADDING for less space between items */
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            color: var(--text-light);
+            font-size: 0.95rem;
+            transition: background 0.3s ease, color 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .select-items div:hover, .select-items div.same-as-selected {
+            background: rgba(var(--primary-rgb), 0.15);
+        }
+        [data-theme="dark"] .select-items div:hover,
+        [data-theme="dark"] .select-items div.same-as-selected {
+             background: rgba(var(--primary-rgb), 0.25);
+        }
+
+        /* Specific styles for dropdowns within the task table */
+        .task-table .custom-select {
+            min-width: 175px; /* Keep a good minimum width */
+        }
+        .task-table .select-selected {
+             min-width: 170px;
+        }
+        /* --- End Custom Select Styling --- */
+
+
+        .task-table button {
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            color: white;
+            font-weight: 500;
+            vertical-align: middle; /* Align buttons nicely */
+        }
+
+        .task-table .delete-btn {
+            background: linear-gradient(135deg, var(--secondary), color-mix(in srgb, var(--secondary) 80%, black));
+            margin-right: 0.6rem;
+        }
+        .task-table .delete-btn:hover {
+             background: linear-gradient(135deg, color-mix(in srgb, var(--secondary) 80%, black), var(--secondary));
+        }
+
+        .task-table .edit-btn {
+            background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 80%, black));
+        }
+         .task-table .edit-btn:hover {
+             background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 80%, black), var(--accent));
+        }
+
+        .task-table .delete-btn:hover, .task-table .edit-btn:hover {
+            transform: scale(1.08) translateY(-1px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+        }
+
+        /* --- Charts --- */
+        .charts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.8rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .chart-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            padding: 1.8rem;
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            transition: background 0.3s ease, border 0.3s ease;
+            position: relative;
+            min-height: 350px;
+        }
+
+        /* --- Insights & History Sections --- */
+        .insights, .history {
+            background: var(--glass-bg);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border);
+            padding: 1.8rem;
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2.5rem;
+            transition: background 0.3s ease, border 0.3s ease, color 0.3s ease;
+        }
+
+        .insights h3, .history h3 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--primary);
+            margin-bottom: 1.2rem;
+            font-size: 1.4rem;
+            transition: color 0.6s ease;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        .insights ul {
+            list-style: none;
+            font-size: 1rem;
+            line-height: 1.8;
+            color: var(--text-light);
+        }
+
+        .insights ul li {
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .insights ul li::before {
+            content: '✓';
+            color: var(--accent);
+            margin-right: 0.8rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: color 0.6s ease;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .insights ul li.insight-completed::before {
+             color: var(--success);
+        }
+
+        .insights .advice {
+            font-style: italic;
+            color: var(--accent);
+            margin-top: 1rem;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+        .insights .advice::before {
+             content: '💡';
+             position: absolute;
+             left: 0;
+             top: 2px;
+             font-style: normal;
+        }
+
+        /* --- Modal Styling --- */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .modal.show {
+             display: flex;
+             opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--bg-light);
+            padding: 2.2rem;
+            border-radius: 18px;
+            width: 90%;
+            max-width: 520px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--glass-border);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: background 0.3s ease, border 0.3s ease, transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.4s ease;
+        }
+        .modal.show .modal-content {
+             transform: scale(1);
+             opacity: 1;
+        }
+
+        .modal-content h2 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.6rem;
+            text-align: center;
+            transition: color 0.6s ease;
+        }
+
+        .modal-content label {
+             display: block;
+             margin-bottom: 0.5rem;
+             font-weight: 600;
+             color: var(--text-light);
+             font-size: 0.9rem;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 0.9rem;
+            margin-bottom: 1.2rem;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.3);
+            color: var(--text-light);
+            font-size: 1rem;
+            transition: box-shadow 0.3s ease, transform 0.3s ease, background 0.3s ease, border 0.3s ease, color 0.3s ease;
+        }
+
+        .modal-content input:focus {
+            outline: none;
+            box-shadow: 0 0 14px rgba(var(--primary-rgb), 0.5);
+            transform: scale(1.03);
+        }
+
+        .modal-buttons {
+             display: flex;
+             justify-content: flex-end;
+             gap: 0.8rem;
+             margin-top: 1.5rem;
+        }
+
+        .modal-content button {
+            padding: 0.9rem 1.8rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+        }
+
+        .modal-content .save-btn {
+            background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 80%, black));
+            color: white;
+        }
+        .modal-content .save-btn:hover {
+             background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 80%, black), var(--primary));
+        }
+
+        .modal-content .cancel-btn {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            color: white;
+        }
+        .modal-content .cancel-btn:hover {
+             background: linear-gradient(135deg, #4b5563, #6b7280);
+        }
+
+        .modal-content .save-btn:hover, .modal-content .cancel-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+        }
+        /* --- End Modal Styling --- */
+
+        /* --- Loading Indicator --- */
+        .loading {
+            display: none;
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin: 1.5rem 0;
+            font-weight: 500;
+            transition: color 0.6s ease;
+        }
+        .loading.show {
+             display: block;
+        }
+
+        /* --- Particles Background --- */
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+            transition: opacity 0.6s ease;
+        }
+        [data-theme="dark"] #particles-js {
+             opacity: 0.15;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 992px) {
+             .task-form {
+                 grid-template-columns: 1fr 1fr;
+             }
+             .task-form input[type="text"] {
+                 grid-column: 1 / -1;
+             }
+             .task-form button {
+                 grid-column: 1 / -1;
+             }
+             .charts {
+                 grid-template-columns: 1fr;
+             }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                 padding: 16px;
+            }
+            h1 {
+                font-size: 2.2rem;
+                margin-bottom: 1.8rem;
+            }
+            .task-form {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 1.5rem;
+            }
+            .table-responsive {
+                 /* Already handles horizontal scroll */
+                 margin-bottom: 2.5rem;
+            }
+            .task-table, .history table {
+                /* Table itself doesn't need margin */
+                margin-bottom: 0;
+                /* Ensure table doesn't shrink below content width */
+                min-width: 650px; /* Adjust as needed */
+            }
+            .task-table th, .task-table td, .history table th, .history table td {
+                font-size: 0.9rem;
+                padding: 1rem;
+                white-space: nowrap; /* Keep nowrap on most cells */
+            }
+            /* Allow task name to wrap */
+            .task-table td:nth-child(1), .history td:nth-child(1) {
+                 white-space: normal;
+                 min-width: 150px;
+            }
+            /* Adjust min-widths for other columns if necessary */
+            .task-table td:nth-child(4) { min-width: 180px; } /* Status */
+            .task-table td:nth-child(5) { min-width: 160px; } /* Actions */
+
+            .date-picker input, .history .date-picker-wrapper input {
+                width: 100%; /* Make date pickers full width */
+                font-size: 1rem;
+            }
+            /* History picker icon adjustment on mobile */
+            .history .date-picker-wrapper input {
+                 padding-right: 3rem; /* Keep space for icon */
+                 background-position: right 0.8rem center;
+            }
+
+            .charts { gap: 1.5rem; }
+            .chart-container, .insights, .history, .modal-content {
+                padding: 1.5rem;
+                border-radius: 14px;
+            }
+            .insights h3, .history h3 { font-size: 1.3rem; }
+            .insights ul { font-size: 0.95rem; }
+
+            /* Responsive styles for table dropdown */
+            .task-table .custom-select {
+                min-width: 160px; /* Slightly reduce min-width on mobile */
+                width: auto;
+            }
+             .task-table .select-selected {
+                 min-width: 155px;
+            }
+            .modal-content { width: 95%; }
+            .modal-buttons { flex-direction: column-reverse; gap: 0.6rem; }
+            .modal-content button { width: 100%; }
+        }
+
+        /* --- Dark Mode Body Background --- */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(145deg, #4b5563, var(--bg-dark));
+            }
+        }
+        [data-theme="dark"] body {
+             background: linear-gradient(145deg, #4b5563, var(--bg-dark));
+        }
+
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="container">
+        <h1>Công việc hàng ngày</h1> <!-- Changed -->
+
+        <!-- Main Date Picker -->
+        <div class="date-picker">
+            <input type="text" id="taskDate" aria-label="Chọn ngày xem công việc"> <!-- Changed -->
+        </div>
+
+        <!-- Task Input Form -->
+        <form class="task-form" onsubmit="addTask(); return false;">
+            <input type="text" id="taskInput" placeholder="Nhập công việc mới..." aria-label="Tên công việc" required> <!-- Changed -->
+            <input type="time" id="startTime" aria-label="Thời gian bắt đầu" required> <!-- Changed -->
+            <input type="time" id="endTime" aria-label="Thời gian kết thúc" required> <!-- Changed -->
+            <button type="submit">Thêm công việc</button> <!-- Changed -->
+        </form>
+
+        <!-- Loading Indicator -->
+        <div class="loading" id="loading" aria-live="assertive">Đang tải công việc...</div> <!-- Changed -->
+
+        <!-- Today's Task Table -->
+        <div class="table-responsive">
+            <table class="task-table" id="taskTable" aria-live="polite" aria-label="Công việc hôm nay"> <!-- Changed -->
+                <thead>
+                    <tr>
+                        <th scope="col">Tên công việc</th> <!-- Changed -->
+                        <th scope="col">Bắt đầu</th> <!-- Changed -->
+                        <th scope="col">Kết thúc</th> <!-- Changed -->
+                        <th scope="col">Trạng thái</th> <!-- Changed -->
+                        <th scope="col">Hành động</th> <!-- Changed -->
+                    </tr>
+                </thead>
+                <tbody id="taskList">
+                    <!-- Tasks will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts">
+            <div class="chart-container">
+                <canvas id="dailyChart" aria-label="Biểu đồ hoàn thành công việc trong ngày"></canvas> <!-- Changed -->
+            </div>
+            <div class="chart-container">
+                <canvas id="historyChart" aria-label="Biểu đồ tỷ lệ hoàn thành công việc gần đây"></canvas> <!-- Changed -->
+            </div>
+        </div>
+
+        <!-- Insights Section -->
+        <div class="insights">
+            <h3>Nhận xét trong ngày</h3> <!-- Changed -->
+            <ul id="dailyComment" aria-live="polite"></ul>
+        </div>
+        <div class="insights">
+             <h3>Nhận xét tuần</h3> <!-- Changed -->
+             <ul id="weeklyComment" aria-live="polite"></ul>
+        </div>
+
+        <!-- History Section -->
+        <div class="history">
+            <h3>Lịch sử công việc</h3> <!-- Changed -->
+            <!-- History Date Picker - Moved inside the card -->
+            <div class="date-picker-wrapper">
+                <input type="text" id="historyDate" aria-label="Chọn ngày xem lịch sử"> <!-- Changed -->
+            </div>
+             <div class="table-responsive">
+                <table id="historyTable" aria-live="polite" aria-label="Lịch sử công việc cho ngày đã chọn"> <!-- Changed -->
+                    <thead>
+                        <tr>
+                            <th scope="col">Tên công việc</th> <!-- Changed -->
+                            <th scope="col">Bắt đầu</th> <!-- Changed -->
+                            <th scope="col">Kết thúc</th> <!-- Changed -->
+                            <th scope="col">Trạng thái</th> <!-- Changed -->
+                        </tr>
+                    </thead>
+                    <tbody id="historyList">
+                        <!-- History tasks will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div class="modal" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle" tabindex="-1">
+        <div class="modal-content">
+            <h2 id="editModalTitle">Chỉnh sửa công việc</h2> <!-- Changed -->
+            <input type="hidden" id="editTaskId">
+            <div>
+                <label for="editTaskInput">Tên công việc</label> <!-- Changed -->
+                <input type="text" id="editTaskInput" aria-label="Sửa tên công việc" required> <!-- Changed -->
+            </div>
+            <div>
+                <label for="editStartTime">Thời gian bắt đầu</label> <!-- Changed -->
+                <input type="time" id="editStartTime" aria-label="Sửa thời gian bắt đầu" required> <!-- Changed -->
+            </div>
+            <div>
+                <label for="editEndTime">Thời gian kết thúc</label> <!-- Changed -->
+                <input type="time" id="editEndTime" aria-label="Sửa thời gian kết thúc" required> <!-- Changed -->
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="cancel-btn" onclick="closeModal()">Hủy</button> <!-- Changed -->
+                <button type="button" class="save-btn" onclick="saveEdit()">Lưu thay đổi</button> <!-- Changed -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Global Variables ---
+        let dailyChart = null;
+        let historyChart = null;
+        let selectedDate = new Date().toISOString().split('T')[0];
+        let taskDateInstance = null;
+        let historyDateInstance = null;
+        let sortableInstance = null;
+
+        const colors = [
+            { primary: '#3b82f6', secondary: '#ef4444', accent: '#f59e0b' }, // Blue, Red, Orange
+            { primary: '#10b981', secondary: '#f43f5e', accent: '#f97316' }, // Green, Pink, Orange
+            { primary: '#8b5cf6', secondary: '#e11d48', accent: '#d97706' }, // Purple, Red, Amber
+            { primary: '#ec4899', secondary: '#7c3aed', accent: '#ea580c' }, // Pink, Violet, Orange
+            { primary: '#14b8a6', secondary: '#f87171', accent: '#fbbf24' }, // Teal, Red, Amber
+            { primary: '#6366f1', secondary: '#fca5a5', accent: '#facc15' }, // Indigo, Red, Yellow
+            { primary: '#22c55e', secondary: '#fb7185', accent: '#eab308' }, // Lime, Rose, Yellow
+        ];
+
+        // --- Utility Functions ---
+        const getTasks = () => {
+            try {
+                return JSON.parse(localStorage.getItem('tasks')) || [];
+            } catch (e) {
+                console.error("Lỗi đọc công việc từ localStorage:", e);
+                return []; // Trả về mảng rỗng khi có lỗi
+            }
+        };
+        const saveTasks = (tasks) => {
+            try {
+                // Giới hạn số lượng công việc lưu trữ để tránh đầy bộ nhớ
+                localStorage.setItem('tasks', JSON.stringify(tasks.slice(-1000)));
+            } catch (e) {
+                console.error("Lỗi lưu công việc vào localStorage:", e);
+                alert("Không thể lưu công việc. Bộ nhớ có thể đã đầy."); // Thông báo cho người dùng
+            }
+        };
+        const getTaskById = (id) => getTasks().find(task => task.id === id);
+        const getDayName = (dateStr, locale = 'vi-VN') => { // Mặc định locale tiếng Việt
+            try {
+                const date = new Date(`${dateStr}T00:00:00Z`); // Sử dụng Z cho UTC để tránh vấn đề múi giờ
+                return date.toLocaleDateString(locale, { weekday: 'long' });
+            } catch (e) {
+                console.error("Lỗi lấy tên ngày:", e);
+                return dateStr; // Dự phòng
+            }
+        };
+        const getTaskDuration = (startTime, endTime) => {
+            if (!startTime || !endTime) return 0;
+            try {
+                const start = new Date(`1970-01-01T${startTime}:00`);
+                const end = new Date(`1970-01-01T${endTime}:00`);
+                if (isNaN(start) || isNaN(end) || end <= start) return 0;
+                return (end - start) / (1000 * 60); // Thời lượng tính bằng phút
+            } catch (e) {
+                console.error("Lỗi tính toán thời lượng:", e);
+                return 0;
+            }
+        };
+        const getCssVariable = (varName) => getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+        const formatDate = (dateStr, locale = 'vi-VN') => { // Hàm trợ giúp định dạng ngày nhất quán
+             try {
+                 return new Date(`${dateStr}T00:00:00Z`).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' });
+             } catch (e) {
+                 console.error("Lỗi định dạng ngày:", e);
+                 return dateStr; // Dự phòng
+             }
+        };
+        // Helper to parse color hex to RGB array
+        const hexToRgb = (hex) => {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? [
+                parseInt(result[1], 16),
+                parseInt(result[2], 16),
+                parseInt(result[3], 16)
+            ] : null;
+        };
+
+        // --- UI Update Functions ---
+        const showLoading = () => {
+            const loadingEl = document.getElementById('loading');
+            if (!loadingEl) return;
+            loadingEl.style.display = 'block';
+            loadingEl.classList.add('show');
+            gsap.fromTo(loadingEl, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+        };
+        const hideLoading = () => {
+            const loadingEl = document.getElementById('loading');
+            if (!loadingEl) return;
+            gsap.to(loadingEl, {
+                opacity: 0,
+                duration: 0.3,
+                onComplete: () => {
+                    loadingEl.style.display = 'none';
+                    loadingEl.classList.remove('show');
+                }
+            });
+        };
+
+        // --- Color Theme & Particles ---
+        function setDayColors() {
+            try {
+                const day = new Date(`${selectedDate}T00:00:00Z`).getUTCDay(); // Sử dụng ngày UTC
+                const color = colors[day % colors.length];
+                const root = document.documentElement;
+                root.style.setProperty('--primary', color.primary);
+                root.style.setProperty('--secondary', color.secondary);
+                root.style.setProperty('--accent', color.accent);
+
+                // Update RGB variables
+                const primaryRgb = hexToRgb(color.primary);
+                const secondaryRgb = hexToRgb(color.secondary);
+                const accentRgb = hexToRgb(color.accent);
+
+                if (primaryRgb) root.style.setProperty('--primary-rgb', primaryRgb.join(', '));
+                else console.warn("Không thể phân tích màu chính sang RGB:", color.primary);
+
+                if (secondaryRgb) root.style.setProperty('--secondary-rgb', secondaryRgb.join(', '));
+                else console.warn("Không thể phân tích màu phụ sang RGB:", color.secondary);
+
+                if (accentRgb) root.style.setProperty('--accent-rgb', accentRgb.join(', '));
+                else console.warn("Không thể phân tích màu nhấn sang RGB:", color.accent);
+
+                // Update particles color if particlesJS is initialized
+                if (window.pJSDom && window.pJSDom[0] && window.pJSDom[0].pJS) {
+                    window.pJSDom[0].pJS.particles.color.value = color.primary;
+                    window.pJSDom[0].pJS.fn.particlesRefresh();
+                }
+            } catch (e) {
+                 console.error("Lỗi đặt màu theo ngày:", e);
+            }
+        }
+
+        function initParticles() {
+             // Đảm bảo particlesJS đã được tải
+             if (typeof particlesJS === 'undefined') {
+                 console.warn("Particles.js chưa được tải. Thử lại sau 500ms.");
+                 setTimeout(initParticles, 500); // Thử lại sau một khoảng trễ
+                 return;
+             }
+             try {
+                 particlesJS("particles-js", {
+                     particles: {
+                         number: { value: 25, density: { enable: true, value_area: 1000 } },
+                         color: { value: getCssVariable('--primary') || '#3b82f6' }, // Màu dự phòng
+                         shape: { type: "circle" },
+                         opacity: { value: 0.4, random: true, anim: { enable: true, speed: 0.5, opacity_min: 0.1, sync: false } },
+                         size: { value: 3, random: true, anim: { enable: false } },
+                         line_linked: { enable: false },
+                         move: { enable: true, speed: 1, direction: "none", random: true, straight: false, out_mode: "out", bounce: false }
+                     },
+                     interactivity: {
+                         detect_on: "canvas",
+                         events: { onhover: { enable: true, mode: "bubble" }, onclick: { enable: true, mode: "push" } },
+                         modes: { bubble: { distance: 150, size: 5, duration: 2, opacity: 0.8 }, push: { particles_nb: 3 } }
+                     },
+                     retina_detect: true
+                 });
+             } catch (e) {
+                  console.error("Lỗi khởi tạo Particles.js:", e);
+             }
+        }
+
+        function triggerParticleBurst() {
+             try {
+                 if (window.pJSDom && window.pJSDom[0] && window.pJSDom[0].pJS) {
+                     const pJS = window.pJSDom[0].pJS;
+                     const currentColor = getCssVariable('--primary') || '#3b82f6';
+                     pJS.particles.number.value = 60;
+                     pJS.particles.move.speed = 4;
+                     pJS.particles.color.value = currentColor;
+                     pJS.fn.particlesRefresh();
+
+                     setTimeout(() => {
+                         if (window.pJSDom && window.pJSDom[0] && window.pJSDom[0].pJS) {
+                             pJS.particles.number.value = 25;
+                             pJS.particles.move.speed = 1;
+                             pJS.fn.particlesRefresh();
+                         }
+                     }, 1200);
+                 }
+             } catch (e) {
+                  console.error("Lỗi kích hoạt hiệu ứng hạt:", e);
+             }
+        }
+
+        // --- Dark/Light Mode ---
+        const setTheme = () => {
+            try {
+                const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                const theme = prefersDark ? "dark" : "light";
+                document.documentElement.setAttribute("data-theme", theme);
+                // Cập nhật biến CSS RGB cho text-light dựa trên theme
+                const textLightColor = getCssVariable('--text-light');
+                const textLightRgb = hexToRgb(textLightColor);
+                if(textLightRgb) {
+                    document.documentElement.style.setProperty('--text-light-rgb', textLightRgb.join(', '));
+                } else {
+                    // Fallback if color is not hex (e.g., name or invalid)
+                    document.documentElement.style.setProperty('--text-light-rgb', theme === 'dark' ? '243, 244, 246' : '17, 24, 39');
+                }
+
+                // Cập nhật biểu đồ sau khi thay đổi theme (đảm bảo biểu đồ tồn tại)
+                if (typeof Chart !== 'undefined') {
+                     // Trì hoãn một chút để cho phép các biến CSS cập nhật
+                     setTimeout(() => {
+                         if (dailyChart || historyChart) updateCharts();
+                     }, 50);
+                }
+            } catch (e) {
+                 console.error("Lỗi đặt theme:", e);
+            }
+        };
+
+        // --- Flatpickr Initialization & Updates ---
+        function getTaskDates() {
+            const tasks = getTasks();
+            // Sử dụng Set để loại bỏ trùng lặp và sau đó sắp xếp
+            return [...new Set(tasks.map(task => task.date))].sort();
+        }
+
+        function updateFlatpickrVisuals() {
+            try {
+                const taskDatesSet = new Set(getTaskDates());
+
+                // Cập nhật ngày có công việc trên cả hai date picker
+                document.querySelectorAll('.flatpickr-day').forEach(dayElem => {
+                    const dateStr = dayElem.getAttribute('aria-label') ? flatpickr.formatDate(new Date(dayElem.dateObj), 'Y-m-d') : null;
+                    if (dateStr) {
+                        if (taskDatesSet.has(dateStr)) {
+                            dayElem.classList.add("has-task");
+                            dayElem.title = dayElem.getAttribute('aria-label') + " (có công việc)";
+                        } else {
+                            dayElem.classList.remove("has-task");
+                            // Xóa title nếu không còn công việc
+                            if (dayElem.title?.includes('(có công việc)')) {
+                                dayElem.title = dayElem.getAttribute('aria-label');
+                            }
+                        }
+                    }
+                });
+
+                // Không cần set 'enable' vì onDayCreate xử lý việc đánh dấu ngày
+                if (taskDateInstance) taskDateInstance.redraw();
+                if (historyDateInstance) historyDateInstance.redraw();
+
+            } catch (e) {
+                 console.error("Lỗi cập nhật giao diện Flatpickr:", e);
+            }
+        }
+
+
+        function initFlatpickr() {
+             // Đảm bảo Flatpickr và locale tiếng Việt đã được tải
+             if (typeof flatpickr === 'undefined' || typeof flatpickr.l10ns.vn === 'undefined') {
+                 console.warn("Flatpickr hoặc locale tiếng Việt chưa được tải. Thử lại sau 500ms.");
+                 setTimeout(initFlatpickr, 500); // Thử lại
+                 return;
+             }
+
+             try {
+                 flatpickr.localize(flatpickr.l10ns.vn); // Đặt locale tiếng Việt
+
+                 const commonOptions = {
+                     dateFormat: "Y-m-d",
+                     altInput: true,
+                     altFormat: "l, d/m/Y", // Định dạng tiếng Việt: Thứ..., dd/mm/yyyy
+                     locale: "vn", // Sử dụng locale tiếng Việt
+                     onDayCreate: function(dObj, dStr, fp, dayElem) {
+                         // dStr được tạo bởi flatpickr dựa trên dateFormat
+                         const taskDatesSet = new Set(getTaskDates());
+                         if (taskDatesSet.has(dStr)) {
+                             dayElem.classList.add("has-task");
+                             // Thêm tooltip cho khả năng truy cập
+                             dayElem.title = dayElem.getAttribute('aria-label') + " (có công việc)";
+                         }
+                     },
+                     // Thêm onMonthChange và onYearChange để vẽ lại các dấu chấm
+                     onMonthChange: function(selectedDates, dateStr, instance) {
+                         instance.redraw();
+                     },
+                     onYearChange: function(selectedDates, dateStr, instance) {
+                         instance.redraw();
+                     }
+                 };
+
+                 taskDateInstance = flatpickr("#taskDate", {
+                     ...commonOptions,
+                     defaultDate: selectedDate,
+                     // Không cần 'enable' ở đây nữa vì onDayCreate xử lý visual
+                     onChange: (selectedDates, dateStr) => {
+                         if (!dateStr) return;
+                         selectedDate = dateStr;
+                         setDayColors();
+                         gsap.to("#taskList", {
+                             opacity: 0,
+                             y: -20,
+                             duration: 0.3,
+                             ease: "power2.in",
+                             onComplete: () => {
+                                 loadTasks();
+                                 gsap.fromTo("#taskList", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out", delay: 0.1 });
+                             }
+                         });
+                         updateCharts();
+                     },
+                 });
+
+                 historyDateInstance = flatpickr("#historyDate", {
+                     ...commonOptions,
+                     // Không cần 'enable' ở đây nữa
+                     onChange: (selectedDates, dateStr) => {
+                         const historyListBody = document.getElementById('historyList');
+                         if (!historyListBody) return;
+
+                         // Xóa danh sách lịch sử ngay lập tức trước khi tải
+                         historyListBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 2rem; font-style: italic;">Đang tải lịch sử...</td></tr>`;
+                         if (!dateStr) {
+                             historyListBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 2rem; font-style: italic;">Chọn một ngày để xem lịch sử.</td></tr>`;
+                             return;
+                         }
+                         // Tải lịch sử sau một khoảng trễ nhỏ để cho phép UI cập nhật
+                         setTimeout(() => loadHistory(dateStr), 50);
+                     }
+                 });
+             } catch (e) {
+                  console.error("Lỗi khởi tạo Flatpickr:", e);
+             }
+        }
+
+        // --- Custom Select Initialization ---
+        function initCustomSelect(selectId) {
+            try {
+                const selElmnt = document.getElementById(selectId);
+                if (!selElmnt) {
+                    // console.warn(`Không tìm thấy phần tử select: ${selectId}`);
+                    return;
+                }
+
+                const selContainer = selElmnt.closest('.custom-select');
+                if (!selContainer) {
+                     console.error(`Không tìm thấy container custom select cho: ${selectId}`);
+                     return;
+                }
+                // Ngăn chặn khởi tạo lại nếu đã có
+                if (selContainer.querySelector('.select-selected')) return;
+
+                selContainer.dataset.originalSelectId = selectId;
+                selElmnt.style.display = 'none'; // Ẩn select gốc
+
+                const selSelected = document.createElement("DIV");
+                selSelected.setAttribute("class", "select-selected");
+                selSelected.setAttribute("aria-haspopup", "listbox");
+                selSelected.setAttribute("aria-expanded", "false");
+                selSelected.setAttribute("tabindex", "0"); // Cho phép focus
+                // Lấy text của option đang được chọn trong select gốc
+                const selectedOptionText = selElmnt.options[selElmnt.selectedIndex] ? selElmnt.options[selElmnt.selectedIndex].innerHTML : '';
+                selSelected.innerHTML = `<span>${selectedOptionText}</span>`; // Hiển thị text đã dịch
+                selContainer.appendChild(selSelected);
+
+                const selItems = document.createElement("DIV");
+                selItems.setAttribute("class", "select-items");
+                selItems.setAttribute("role", "listbox"); // Vai trò cho accessibility
+
+                for (let i = 0; i < selElmnt.options.length; i++) {
+                    const item = document.createElement("DIV");
+                    item.innerHTML = selElmnt.options[i].innerHTML; // Lấy text đã dịch từ option gốc
+                    item.setAttribute("role", "option");
+                    item.setAttribute("tabindex", "-1"); // Cho phép focus khi điều hướng bằng phím
+                    item.dataset.value = selElmnt.options[i].value; // Lưu giá trị gốc
+
+                    if (i === selElmnt.selectedIndex) {
+                        item.classList.add("same-as-selected");
+                        item.setAttribute("aria-selected", "true");
+                    } else {
+                        item.setAttribute("aria-selected", "false");
+                    }
+
+                    item.addEventListener("click", function(e) {
+                        const s = selElmnt; // Select gốc
+                        const currentSelectedText = selSelected.querySelector('span');
+                        if (!s || !currentSelectedText) return;
+
+                        // Cập nhật giá trị select gốc *trước* khi kích hoạt sự kiện change
+                        s.value = this.dataset.value;
+
+                        // Cập nhật text hiển thị
+                        currentSelectedText.innerHTML = this.innerHTML;
+
+                        // Cập nhật class và thuộc tính aria
+                        const siblings = this.parentNode.children;
+                        for (let sib of siblings) {
+                            sib.classList.remove("same-as-selected");
+                            sib.setAttribute("aria-selected", "false");
+                        }
+                        this.classList.add("same-as-selected");
+                        this.setAttribute("aria-selected", "true");
+
+                        // Đóng dropdown
+                        closeDropdown(selContainer);
+                        selSelected.focus(); // Đưa focus về nút chọn
+
+                        // Kích hoạt sự kiện change *sau* khi cập nhật giá trị và UI
+                        s.dispatchEvent(new Event('change', { bubbles: true }));
+                    });
+                    selItems.appendChild(item);
+                }
+                selContainer.appendChild(selItems);
+
+                // Sự kiện click để mở/đóng dropdown
+                selSelected.addEventListener("click", function(e) {
+                    e.stopPropagation(); // Ngăn sự kiện lan ra document
+                    toggleDropdown(selContainer);
+                });
+
+                // Sự kiện phím cho nút chọn
+                selSelected.addEventListener("keydown", function(e) {
+                    if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        toggleDropdown(selContainer);
+                    } else if (e.key === "Escape") {
+                        closeDropdown(selContainer);
+                    } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+                         // Mở dropdown và focus vào option đầu tiên/cuối cùng nếu đóng
+                         if (!selItems.classList.contains('show')) {
+                             toggleDropdown(selContainer);
+                         }
+                         // Điều hướng trong các options (hàm navigateOptions xử lý)
+                         navigateOptions(selItems, e.key);
+                         e.preventDefault();
+                    }
+                });
+
+                // Sự kiện phím cho các mục trong dropdown
+                selItems.addEventListener("keydown", function(e) {
+                    if (e.key === "Escape") {
+                        closeDropdown(selContainer);
+                        selSelected.focus(); // Trả focus về nút
+                    } else if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        // Click vào mục đang được focus
+                        if (document.activeElement && document.activeElement.getAttribute('role') === 'option') {
+                            document.activeElement.click();
+                        }
+                    } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+                        e.preventDefault();
+                        navigateOptions(selItems, e.key); // Điều hướng lên/xuống
+                    }
+                });
+            } catch (e) {
+                 console.error(`Lỗi khởi tạo custom select ${selectId}:`, e);
+            }
+        }
+
+        function toggleDropdown(container) {
+            if (!container) return;
+            const items = container.querySelector('.select-items');
+            const button = container.querySelector('.select-selected');
+            if (!items || !button) return;
+            const isOpen = items.classList.contains('show');
+            closeAllDropdowns(); // Đóng tất cả các dropdown khác trước
+            if (!isOpen) {
+                items.classList.add('show');
+                button.classList.add('open');
+                button.setAttribute('aria-expanded', 'true');
+                // Focus vào mục đã chọn hoặc mục đầu tiên khi mở
+                const selectedOption = items.querySelector('.same-as-selected') || items.firstElementChild;
+                if (selectedOption) selectedOption.focus();
+            }
+        }
+
+        function closeDropdown(container) {
+            if (!container) return;
+            const items = container.querySelector('.select-items');
+            const button = container.querySelector('.select-selected');
+            if (!items || !button) return;
+            items.classList.remove('show');
+            button.classList.remove('open');
+            button.setAttribute('aria-expanded', 'false');
+        }
+
+        function closeAllDropdowns(exceptThisOne = null) {
+            document.querySelectorAll('.custom-select .select-items.show').forEach(openDropdown => {
+                const container = openDropdown.closest('.custom-select');
+                // Chỉ đóng nếu không phải là dropdown đang được tương tác
+                if (container !== exceptThisOne) {
+                    closeDropdown(container);
+                }
+            });
+        }
+
+        function navigateOptions(itemsContainer, direction) {
+             if (!itemsContainer) return;
+             const options = Array.from(itemsContainer.children).filter(el => el.getAttribute('role') === 'option'); // Chỉ lấy các option
+             if (options.length === 0) return;
+
+             let currentFocusIndex = options.findIndex(opt => opt === document.activeElement);
+
+             if (direction === "ArrowDown") {
+                 currentFocusIndex = (currentFocusIndex + 1) % options.length;
+             } else if (direction === "ArrowUp") {
+                 currentFocusIndex = (currentFocusIndex - 1 + options.length) % options.length;
+             } else {
+                 // Nếu không có mục nào đang focus, focus vào mục đầu tiên khi nhấn ArrowDown
+                 if (currentFocusIndex === -1 && direction === "ArrowDown") {
+                     currentFocusIndex = 0;
+                 }
+                 // Focus vào mục cuối cùng khi nhấn ArrowUp
+                 else if (currentFocusIndex === -1 && direction === "ArrowUp") {
+                      currentFocusIndex = options.length - 1;
+                 }
+             }
+
+             if (currentFocusIndex >= 0 && currentFocusIndex < options.length) {
+                 options[currentFocusIndex].focus(); // Sử dụng optional chaining phòng trường hợp lỗi
+             }
+        }
+
+        // Đóng dropdown khi click ra ngoài
+        document.addEventListener("click", function(e) {
+            // Kiểm tra xem click có nằm trong bất kỳ custom-select nào không
+            if (!e.target.closest('.custom-select')) {
+                closeAllDropdowns();
+            }
+        });
+
+        // MutationObserver để khởi tạo select được thêm động (ví dụ khi thêm task mới)
+        const observer = new MutationObserver((mutationsList) => {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach(node => {
+                        // Chỉ xử lý Element nodes
+                        if (node.nodeType === 1) {
+                             // Tìm select bên trong node được thêm hoặc chính node đó
+                             const selects = node.matches('select[id^="status_"]') ? [node] : node.querySelectorAll('select[id^="status_"]');
+                             selects.forEach(sel => {
+                                 const container = sel.closest('.custom-select');
+                                 // Khởi tạo chỉ khi UI tùy chỉnh chưa được xây dựng
+                                 if (sel.id && container && !container.querySelector('.select-selected')) {
+                                     // Sử dụng requestAnimationFrame để đảm bảo an toàn khi khởi tạo
+                                     requestAnimationFrame(() => initCustomSelect(sel.id));
+                                 }
+                             });
+                        }
+                    });
+                }
+            }
+        });
+        // Quan sát body của danh sách công việc để phát hiện thay đổi
+        const taskListElement = document.getElementById('taskList');
+        if (taskListElement) {
+            observer.observe(taskListElement, { childList: true, subtree: true });
+        } else {
+             console.error("Không tìm thấy phần tử danh sách công việc (#taskList) cho MutationObserver.");
+        }
+
+
+        // --- PWA Service Worker ---
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                // Sử dụng đường dẫn tương đối, giả sử sw.js cùng thư mục
+                navigator.serviceWorker.register('sw.js') // Đảm bảo tên file là sw.js
+                    .then(registration => {
+                        console.log('Service Worker đã đăng ký với scope:', registration.scope);
+                    })
+                    .catch(err => {
+                        console.error('Đăng ký Service Worker thất bại:', err);
+                    });
+            } else {
+                 console.log('Trình duyệt này không hỗ trợ Service Worker.');
+            }
+        }
+
+        // --- Task Management Functions ---
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const startTimeInput = document.getElementById('startTime');
+            const endTimeInput = document.getElementById('endTime');
+
+            // Kiểm tra phần tử tồn tại trước khi truy cập value
+            if (!taskInput || !startTimeInput || !endTimeInput) {
+                console.error("Một hoặc nhiều trường input không tìm thấy.");
+                alert('Đã xảy ra lỗi. Vui lòng thử lại.');
+                return;
+            }
+
+            const taskText = taskInput.value.trim();
+            const startTime = startTimeInput.value;
+            const endTime = endTimeInput.value;
+
+            if (!taskText || !startTime || !endTime) {
+                alert('Vui lòng điền đầy đủ thông tin công việc (Tên, Bắt đầu, Kết thúc).');
+                return;
+            }
+
+            try {
+                if (new Date(`1970-01-01T${endTime}:00`) <= new Date(`1970-01-01T${startTime}:00`)) {
+                    alert('Thời gian kết thúc phải sau thời gian bắt đầu.');
+                    endTimeInput.focus();
+                    return;
+                }
+            } catch (e) {
+                 alert('Định dạng thời gian không hợp lệ.');
+                 console.error("Định dạng thời gian không hợp lệ:", e);
+                 return;
+            }
+
+            const allTasks = getTasks();
+            const tasksForDate = allTasks.filter(t => t.date === selectedDate);
+
+            const newTask = {
+                id: Date.now(),
+                text: taskText,
+                date: selectedDate,
+                startTime,
+                endTime,
+                status: 'Incomplete', // Trạng thái mặc định: Chưa hoàn thành
+                order: tasksForDate.length // Đặt thứ tự ban đầu dựa trên số lượng task hiện có trong ngày
+            };
+
+            allTasks.push(newTask);
+            saveTasks(allTasks);
+
+            // Chỉ render lại nếu task mới thuộc ngày đang chọn
+            if (newTask.date === selectedDate) {
+                // Xóa thông báo "Không có công việc" nếu có
+                const noTaskRow = document.querySelector('#taskList .no-tasks-row');
+                if (noTaskRow) noTaskRow.remove();
+                renderTask(newTask); // Render task mới vào cuối danh sách
+            }
+
+            resetForm();
+            updateCharts();
+            updateFlatpickrVisuals(); // Cập nhật dấu chấm trên lịch
+            triggerParticleBurst(); // Hiệu ứng hạt
+            taskInput.focus(); // Focus lại vào input tên công việc
+        }
+
+        function renderTask(task, listId = 'taskList') {
+            const taskListBody = document.getElementById(listId);
+            if (!taskListBody) {
+                console.error(`Không tìm thấy tbody với ID: ${listId}`);
+                return;
+            }
+
+            const taskRow = document.createElement('tr');
+            taskRow.dataset.id = task.id;
+            taskRow.className = task.status === 'Completed' ? 'completed' : '';
+            if (listId === 'taskList') {
+                 taskRow.classList.add('draggable'); // Chỉ thêm class draggable cho danh sách chính
+            }
+            // Dịch trạng thái cho aria-label
+            const statusTextAria = task.status === 'Completed' ? 'Đã hoàn thành' : 'Chưa hoàn thành';
+            taskRow.setAttribute('aria-label', `Công việc: ${task.text}, Trạng thái: ${statusTextAria}`);
+
+            const isMainList = listId === 'taskList';
+            // Dịch trạng thái cho hiển thị và options
+            const incompleteText = "Chưa hoàn thành";
+            const completedText = "Đã hoàn thành";
+            const statusDisplayText = task.status === 'Completed' ? completedText : incompleteText;
+
+            taskRow.innerHTML = `
+                <td><span class="task-text">${task.text}</span></td>
+                <td>${task.startTime || 'N/A'}</td>
+                <td>${task.endTime || 'N/A'}</td>
+                <td>
+                    ${isMainList ? `
+                        <div class="custom-select status-select">
+                            <select id="status_${task.id}" data-task-id="${task.id}" onchange="updateTaskStatus(event)" aria-label="Cập nhật trạng thái cho ${task.text}">
+                                <option value="Incomplete" ${task.status === 'Incomplete' ? 'selected' : ''}>${incompleteText}</option>
+                                <option value="Completed" ${task.status === 'Completed' ? 'selected' : ''}>${completedText}</option>
+                            </select>
+                        </div>
+                    ` : statusDisplayText /* Hiển thị text trạng thái đã dịch cho lịch sử */}
+                </td>
+                ${isMainList ? `
+                    <td class="actions">
+                        <button type="button" class="edit-btn" onclick="openEditModal(${task.id})" aria-label="Sửa công việc ${task.text}">Sửa</button>
+                        <button type="button" class="delete-btn" onclick="deleteTask(${task.id})" aria-label="Xóa công việc ${task.text}">Xóa</button>
+                    </td>
+                ` : ''}
+            `;
+
+            taskListBody.appendChild(taskRow);
+
+            // Animation cho hàng mới thêm (chỉ khi là danh sách chính)
+            if (isMainList) {
+                gsap.from(taskRow, {
+                    opacity: 0,
+                    x: -50, // Hiệu ứng trượt từ trái sang
+                    duration: 0.5,
+                    ease: "power3.out",
+                    // Delay nhẹ dựa trên vị trí để tạo hiệu ứng xếp tầng
+                    delay: (taskListBody.children.length -1) * 0.03
+                });
+            }
+
+
+            // Khởi tạo custom select chỉ cho danh sách chính
+            // MutationObserver sẽ xử lý việc này, nhưng gọi lại ở đây để đảm bảo
+            if (isMainList) {
+                 const selectId = `status_${task.id}`;
+                 // Dùng requestAnimationFrame để đảm bảo phần tử đã hoàn toàn trong DOM
+                 requestAnimationFrame(() => initCustomSelect(selectId));
+            }
+        }
+
+        function loadTasks() {
+            showLoading();
+            const taskListBody = document.getElementById('taskList');
+            if (!taskListBody) {
+                 console.error("Không tìm thấy tbody #taskList.");
+                 hideLoading();
+                 return;
+            }
+            taskListBody.innerHTML = ''; // Xóa nội dung cũ
+
+            const tasksForSelectedDate = getTasks()
+                .filter(task => task.date === selectedDate)
+                // Sắp xếp theo thuộc tính 'order', nếu không có thì dùng 'id'
+                .sort((a, b) => (a.order ?? a.id) - (b.order ?? b.id));
+
+            if (tasksForSelectedDate.length === 0) {
+                 // Hiển thị thông báo nếu không có công việc
+                 taskListBody.innerHTML = `<tr class="no-tasks-row"><td colspan="5" style="text-align:center; padding: 2rem; font-style: italic;">Không có công việc nào được lên lịch cho ngày ${formatDate(selectedDate)}.</td></tr>`;
+            } else {
+                tasksForSelectedDate.forEach(task => renderTask(task));
+            }
+
+            initSortable(); // Khởi tạo hoặc khởi tạo lại SortableJS
+            hideLoading();
+        }
+
+        function updateTaskStatus(event) {
+             const selectElement = event.target;
+             // Lấy taskId từ data attribute của select gốc
+             const taskId = parseInt(selectElement.dataset.taskId);
+             const newStatus = selectElement.value;
+
+             if (isNaN(taskId)) {
+                 console.error("ID công việc không hợp lệ trong updateTaskStatus:", selectElement.dataset.taskId);
+                 return;
+             }
+
+             let tasks = getTasks();
+             let taskUpdated = false;
+             let updatedTaskText = ''; // Để cập nhật aria-label
+
+             tasks = tasks.map(task => {
+                 if (task.id === taskId) {
+                     if (task.status !== newStatus) { // Chỉ cập nhật nếu trạng thái thực sự thay đổi
+                         taskUpdated = true;
+                         updatedTaskText = task.text; // Lưu text trước khi cập nhật
+                         return { ...task, status: newStatus };
+                     }
+                 }
+                 return task;
+             });
+
+             if (taskUpdated) {
+                 saveTasks(tasks);
+                 const taskRow = document.querySelector(`#taskList tr[data-id="${taskId}"]`);
+                 if (taskRow) {
+                     // Cập nhật class 'completed'
+                     taskRow.classList.toggle('completed', newStatus === 'Completed');
+                     // Cập nhật aria-label với trạng thái đã dịch
+                     const statusTextAria = newStatus === 'Completed' ? 'Đã hoàn thành' : 'Chưa hoàn thành';
+                     taskRow.setAttribute('aria-label', `Công việc: ${updatedTaskText}, Trạng thái: ${statusTextAria}`);
+
+                     // Phản hồi trực quan (nhấp nháy nhẹ)
+                     gsap.fromTo(taskRow,
+                        { backgroundColor: 'rgba(var(--primary-rgb), 0.2)' },
+                        { backgroundColor: 'transparent', duration: 0.8, ease: 'none' });
+                 } else {
+                      console.warn(`Không tìm thấy hàng công việc với ID ${taskId} để cập nhật UI.`);
+                 }
+                 updateCharts(); // Cập nhật biểu đồ sau khi thay đổi trạng thái
+             }
+        }
+
+        function deleteTask(id) {
+            if (!confirm('Bạn có chắc chắn muốn xóa công việc này không?')) {
+                return;
+            }
+
+            const taskRow = document.querySelector(`#taskList tr[data-id="${id}"]`);
+            if (taskRow) {
+                // Animation xóa hàng
+                gsap.to(taskRow, {
+                    opacity: 0,
+                    x: 100, // Trượt sang phải
+                    height: 0,
+                    paddingTop: 0,
+                    paddingBottom: 0,
+                    marginTop: 0,
+                    marginBottom: 0,
+                    duration: 0.4,
+                    ease: "power2.in",
+                    onComplete: () => {
+                        let tasks = getTasks();
+                        tasks = tasks.filter(task => task.id !== id);
+                        saveTasks(tasks);
+
+                        taskRow.remove(); // Xóa phần tử khỏi DOM
+
+                        // Kiểm tra xem danh sách có rỗng không sau khi xóa
+                        const taskListBody = document.getElementById('taskList');
+                        if (taskListBody && taskListBody.children.length === 0) {
+                             taskListBody.innerHTML = `<tr class="no-tasks-row"><td colspan="5" style="text-align:center; padding: 2rem; font-style: italic;">Không có công việc nào được lên lịch cho ngày ${formatDate(selectedDate)}.</td></tr>`;
+                        }
+
+                        updateCharts();
+                        updateFlatpickrVisuals(); // Cập nhật lịch (có thể ngày đó hết task)
+                    }
+                });
+            } else {
+                 // Dự phòng nếu không tìm thấy hàng (ít xảy ra)
+                 console.warn("Không tìm thấy hàng công việc để xóa:", id);
+                 let tasks = getTasks();
+                 tasks = tasks.filter(task => task.id !== id);
+                 saveTasks(tasks);
+                 loadTasks(); // Tải lại danh sách làm dự phòng
+                 updateCharts();
+                 updateFlatpickrVisuals();
+            }
+        }
+
+        // --- Edit Modal Functions ---
+        let focusTrapListener = null; // Biến lưu trữ listener bẫy focus
+
+        function openEditModal(id) {
+            const task = getTaskById(id);
+            if (!task) {
+                console.error("Không tìm thấy công việc để sửa:", id);
+                alert("Không tìm thấy công việc!");
+                return;
+            }
+
+            // Điền dữ liệu vào modal
+            const taskIdInput = document.getElementById('editTaskId');
+            const taskInput = document.getElementById('editTaskInput');
+            const startTimeInput = document.getElementById('editStartTime');
+            const endTimeInput = document.getElementById('editEndTime');
+            const modal = document.getElementById('editModal');
+
+            if (!taskIdInput || !taskInput || !startTimeInput || !endTimeInput || !modal) {
+                console.error("Một hoặc nhiều phần tử modal không tìm thấy.");
+                alert("Lỗi giao diện chỉnh sửa. Vui lòng thử lại.");
+                return;
+            }
+
+            taskIdInput.value = task.id;
+            taskInput.value = task.text;
+            startTimeInput.value = task.startTime;
+            endTimeInput.value = task.endTime;
+
+            modal.classList.add('show');
+            taskInput.focus(); // Focus vào trường tên công việc
+            addFocusTrap(modal); // Thêm bẫy focus
+        }
+
+        function saveEdit() {
+            const idInput = document.getElementById('editTaskId');
+            const textInput = document.getElementById('editTaskInput');
+            const startTimeInput = document.getElementById('editStartTime');
+            const endTimeInput = document.getElementById('editEndTime');
+
+            if (!idInput || !textInput || !startTimeInput || !endTimeInput) {
+                 console.error("Thiếu trường input trong modal khi lưu.");
+                 closeModal();
+                 return;
+            }
+
+            const id = parseInt(idInput.value);
+            const text = textInput.value.trim();
+            const startTime = startTimeInput.value;
+            const endTime = endTimeInput.value;
+
+            if (isNaN(id)) {
+                 console.error("ID công việc không hợp lệ khi lưu chỉnh sửa.");
+                 closeModal();
+                 return;
+            }
+
+            if (!text || !startTime || !endTime) {
+                alert('Vui lòng điền đầy đủ các trường.');
+                return;
+            }
+            try {
+                if (new Date(`1970-01-01T${endTime}:00`) <= new Date(`1970-01-01T${startTime}:00`)) {
+                    alert('Thời gian kết thúc phải sau thời gian bắt đầu.');
+                    endTimeInput.focus();
+                    return;
+                }
+            } catch (e) {
+                 alert('Định dạng thời gian không hợp lệ.');
+                 console.error("Lỗi định dạng thời gian khi sửa:", e);
+                 return;
+            }
+
+            let tasks = getTasks();
+            let taskUpdated = false;
+            let originalTask = null; // Lưu trữ task gốc để cập nhật UI
+
+            tasks = tasks.map(task => {
+                if (task.id === id) {
+                    originalTask = {...task}; // Sao chép task gốc
+                    // Chỉ cập nhật text và thời gian, giữ nguyên status, date, order
+                    if (task.text !== text || task.startTime !== startTime || task.endTime !== endTime) {
+                        taskUpdated = true;
+                        return { ...task, text, startTime, endTime };
+                    }
+                }
+                return task;
+            });
+
+            if (taskUpdated && originalTask) {
+                saveTasks(tasks);
+                closeModal();
+
+                const taskRow = document.querySelector(`#taskList tr[data-id="${id}"]`);
+                // Chỉ cập nhật hàng nếu nó đang hiển thị (ngày của task trùng với ngày đang chọn)
+                if (taskRow && originalTask.date === selectedDate) {
+                     taskRow.querySelector('.task-text').textContent = text;
+                     taskRow.cells[1].textContent = startTime;
+                     taskRow.cells[2].textContent = endTime;
+                     // Cập nhật aria-label
+                     const statusTextAria = originalTask.status === 'Completed' ? 'Đã hoàn thành' : 'Chưa hoàn thành';
+                     taskRow.setAttribute('aria-label', `Công việc: ${text}, Trạng thái: ${statusTextAria}`);
+                     // Hiệu ứng nhấp nháy nhẹ màu nhấn
+                     gsap.fromTo(taskRow, { backgroundColor: 'rgba(var(--accent-rgb), 0.3)' }, { backgroundColor: 'transparent', duration: 0.8 });
+                } else if (originalTask.date === selectedDate) {
+                     // Nếu ngày trùng khớp nhưng không tìm thấy hàng (ít xảy ra), tải lại danh sách
+                     console.warn("Hàng công việc không tìm thấy để cập nhật UI, tải lại danh sách.");
+                     loadTasks();
+                }
+                // Không cần cập nhật biểu đồ nếu chỉ thay đổi text/thời gian
+                // updateCharts();
+            } else if (!taskUpdated) {
+                 console.log("Không có thay đổi nào được thực hiện.");
+                 closeModal(); // Đóng modal ngay cả khi không có thay đổi
+            } else {
+                 console.warn("Không tìm thấy ID công việc khi lưu:", id);
+                 closeModal();
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('editModal');
+            if (!modal) return;
+            removeFocusTrap(modal); // Gỡ bỏ bẫy focus
+            modal.classList.remove('show');
+            // Reset form trong modal (tùy chọn, nhưng nên làm)
+            // document.getElementById('editTaskInput').value = '';
+            // document.getElementById('editStartTime').value = '';
+            // document.getElementById('editEndTime').value = '';
+            // document.getElementById('editTaskId').value = '';
+        }
+
+        // Đóng modal khi click ra ngoài vùng nội dung
+        document.getElementById('editModal')?.addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) { // Chỉ đóng khi click vào nền mờ
+                closeModal();
+            }
+        });
+        // Đóng modal khi nhấn phím Escape
+        document.addEventListener('keydown', (e) => {
+             if (e.key === 'Escape' && document.getElementById('editModal')?.classList.contains('show')) {
+                 closeModal();
+             }
+        });
+
+        // --- Focus Trap for Modal ---
+        function addFocusTrap(modalElement) {
+            if (!modalElement) return;
+            // Tìm tất cả các phần tử có thể focus bên trong modal
+            const focusableElements = modalElement.querySelectorAll(
+                'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            if (focusableElements.length === 0) return; // Không có gì để bẫy
+
+            const firstFocusable = focusableElements[0];
+            const lastFocusable = focusableElements[focusableElements.length - 1];
+
+            // Xóa listener cũ nếu có
+            removeFocusTrap(modalElement);
+
+            focusTrapListener = (e) => {
+                if (e.key !== 'Tab') return; // Chỉ xử lý phím Tab
+
+                if (e.shiftKey) { // Shift + Tab
+                    if (document.activeElement === firstFocusable) {
+                        lastFocusable.focus(); // Quay lại phần tử cuối
+                        e.preventDefault();
+                    }
+                } else { // Tab
+                    if (document.activeElement === lastFocusable) {
+                        firstFocusable.focus(); // Quay lại phần tử đầu
+                        e.preventDefault();
+                    }
+                }
+            };
+            modalElement.addEventListener('keydown', focusTrapListener);
+        }
+
+        function removeFocusTrap(modalElement) {
+            if (focusTrapListener && modalElement) {
+                modalElement.removeEventListener('keydown', focusTrapListener);
+                focusTrapListener = null; // Reset biến listener
+            }
+        }
+
+        // --- Form Reset ---
+        function resetForm() {
+            const taskInput = document.getElementById('taskInput');
+            const startTimeInput = document.getElementById('startTime');
+            const endTimeInput = document.getElementById('endTime');
+            if(taskInput) taskInput.value = '';
+            if(startTimeInput) startTimeInput.value = '';
+            if(endTimeInput) endTimeInput.value = '';
+        }
+
+        // --- SortableJS ---
+        function initSortable() {
+             const taskListBody = document.getElementById('taskList');
+             if (!taskListBody) {
+                 console.error("Không tìm thấy tbody #taskList để khởi tạo SortableJS.");
+                 return;
+             }
+
+             // Hủy instance cũ nếu tồn tại
+             if (sortableInstance) {
+                 try {
+                     sortableInstance.destroy();
+                     sortableInstance = null; // Reset instance
+                 } catch (e) {
+                      console.warn("Lỗi hủy instance Sortable cũ:", e);
+                 }
+             }
+
+             // Chỉ khởi tạo nếu có các hàng có thể kéo thả
+             if (taskListBody.querySelector('.draggable')) {
+                 try {
+                     sortableInstance = Sortable.create(taskListBody, {
+                         animation: 250, // Thời gian animation
+                         handle: '.draggable', // Chỉ kéo thả khi giữ vào hàng có class draggable
+                         ghostClass: 'sortable-ghost', // Class cho phần tử "bóng ma"
+                         chosenClass: 'sortable-chosen', // Class cho phần tử đang được chọn
+                         dragClass: 'sortable-drag', // Class cho phần tử đang được kéo
+                         onEnd: (evt) => { // Sự kiện khi kết thúc kéo thả
+                             let tasks = getTasks();
+                             // Lấy thứ tự ID mới từ DOM
+                             const taskIdsOrder = Array.from(evt.target.children)
+                                                    .map(row => parseInt(row.dataset.id))
+                                                    .filter(id => !isNaN(id)); // Lọc bỏ ID không hợp lệ
+
+                             let orderChanged = false;
+                             // Cập nhật thuộc tính 'order' chỉ cho các công việc trong ngày đang chọn
+                             tasks = tasks.map(task => {
+                                 if (task.date === selectedDate) {
+                                     const newOrder = taskIdsOrder.indexOf(task.id);
+                                     // Chỉ cập nhật nếu tìm thấy task và thứ tự thay đổi
+                                     if (newOrder !== -1 && task.order !== newOrder) {
+                                         task.order = newOrder;
+                                         orderChanged = true;
+                                     } else if (newOrder === -1) {
+                                         // Nếu task không có trong thứ tự mới (lỗi?), không thay đổi order
+                                         console.warn(`Task ID ${task.id} không tìm thấy trong thứ tự mới sau khi kéo thả.`);
+                                     }
+                                 }
+                                 return task;
+                             });
+
+                             if (orderChanged) {
+                                 saveTasks(tasks);
+                                 // Không cần tải lại UI vì SortableJS đã cập nhật DOM
+                                 // Có thể thêm phản hồi trực quan nếu muốn
+                                 // console.log("Thứ tự công việc đã được cập nhật.");
+                             }
+                         }
+                     });
+                 } catch (e) {
+                      console.error("Lỗi khởi tạo SortableJS:", e);
+                      sortableInstance = null; // Đảm bảo instance là null nếu có lỗi
+                 }
+             } else {
+                  // console.log("Không có mục nào để kéo thả, SortableJS không được khởi tạo.");
+                  sortableInstance = null; // Đảm bảo instance là null nếu không có mục kéo thả
+             }
+        }
+
+        // --- History Loading ---
+        function loadHistory(date) {
+            const historyListBody = document.getElementById('historyList');
+            if (!historyListBody) {
+                console.error("Không tìm thấy tbody #historyList.");
+                return;
+            }
+            historyListBody.innerHTML = ''; // Xóa lịch sử cũ
+
+            if (!date) {
+                 historyListBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 2rem; font-style: italic;">Chọn một ngày để xem lịch sử.</td></tr>`;
+                 return;
+            }
+
+            const tasksForDate = getTasks()
+                .filter(task => task.date === date)
+                // Sắp xếp lịch sử theo thứ tự đã lưu
+                .sort((a, b) => (a.order ?? a.id) - (b.order ?? b.id));
+
+            if (tasksForDate.length === 0) {
+                 historyListBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 2rem; font-style: italic;">Không có công việc nào được ghi nhận cho ngày ${formatDate(date)}.</td></tr>`;
+            } else {
+                tasksForDate.forEach((task, index) => {
+                    // Sử dụng renderTask nhưng với ID của bảng lịch sử
+                    renderTask(task, 'historyList');
+                    // Animation cho các hàng lịch sử
+                    const historyRow = historyListBody.querySelector(`tr[data-id="${task.id}"]`);
+                    if (historyRow) {
+                        gsap.from(historyRow, {
+                            opacity: 0,
+                            y: 15,
+                            duration: 0.4,
+                            ease: "power2.out",
+                            delay: index * 0.04 // Delay tăng dần
+                        });
+                    }
+                });
+            }
+        }
+
+        // --- Charting & Insights ---
+        function updateCharts() {
+            // Đảm bảo Chart.js đã được tải
+            if (typeof Chart === 'undefined') {
+                 console.warn("Chart.js chưa được tải. Bỏ qua cập nhật biểu đồ.");
+                 // Có thể thử lại hoặc hiển thị thông báo
+                 // setTimeout(updateCharts, 500);
+                 return;
+            }
+            showLoading();
+            try { // Bọc logic biểu đồ trong try...catch
+                const tasks = getTasks();
+                // Lấy màu từ biến CSS, có fallback
+                const textColor = getCssVariable('--text-light') || '#111827';
+                const primaryColor = getCssVariable('--primary') || '#3b82f6';
+                const secondaryColor = getCssVariable('--secondary') || '#ef4444';
+                // const accentColor = getCssVariable('--accent') || '#f59e0b'; // Không dùng trực tiếp trong biểu đồ này
+                const gridColor = document.documentElement.getAttribute('data-theme') === 'dark' ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)';
+                const glassBgColor = getCssVariable('--glass-bg') || 'rgba(255, 255, 255, 0.2)';
+
+                // --- Chart 1: Daily Task Completion (PIE CHART) ---
+                const todayTasks = tasks.filter(task => task.date === selectedDate);
+                const completedToday = todayTasks.filter(task => task.status === 'Completed').length;
+                const incompleteToday = todayTasks.length - completedToday;
+
+                const dailyChartCtx = document.getElementById('dailyChart')?.getContext('2d');
+                if (!dailyChartCtx) {
+                     console.error("Không tìm thấy context canvas của biểu đồ hàng ngày.");
+                     hideLoading();
+                     return;
+                }
+                // Hủy biểu đồ cũ trước khi vẽ mới
+                if (dailyChart) dailyChart.destroy();
+
+                dailyChart = new Chart(dailyChartCtx, {
+                    type: 'pie', // *** THAY ĐỔI: thành 'pie' ***
+                    data: {
+                        labels: ['Đã hoàn thành', 'Chưa hoàn thành'], // Đã dịch
+                        datasets: [{
+                            label: 'Công việc', // Đã dịch
+                            data: [completedToday, incompleteToday],
+                            backgroundColor: [primaryColor, secondaryColor],
+                            borderColor: glassBgColor, // Màu viền nhẹ nhàng
+                            borderWidth: 2, // Giảm độ dày viền
+                            hoverOffset: 8 // *** THÊM: Hiệu ứng khi hover ***
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        // cutout: 0, // *** BỎ hoặc đặt là 0 để thành pie chart ***
+                        animation: {
+                            duration: 1200, // Tăng thời gian animation
+                            easing: 'easeOutQuart' // *** THAY ĐỔI: Easing mượt hơn ***
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: textColor, font: { size: 13, family: 'Inter' }, boxWidth: 15, padding: 20 }
+                            },
+                            title: {
+                                display: true,
+                                text: `Công việc ngày ${formatDate(selectedDate)}`, // Đã dịch
+                                color: textColor,
+                                font: { size: 16, family: 'Poppins', weight: '500' },
+                                padding: { top: 5, bottom: 15 }
+                            },
+                            tooltip: {
+                                bodyFont: { family: 'Inter' },
+                                titleFont: { family: 'Poppins' },
+                                callbacks: { // Hiển thị phần trăm trong tooltip
+                                     label: function(context) {
+                                         let label = context.label || '';
+                                         if (label) label += ': ';
+                                         const value = context.parsed || 0;
+                                         const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                         const percentage = total > 0 ? ((value / total) * 100).toFixed(0) + '%' : '0%';
+                                         label += `${value} (${percentage})`;
+                                         return label;
+                                     }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // --- Chart 2: Weekly Completion Rate (BAR CHART) ---
+                const allDates = [...new Set(tasks.map(task => task.date))].sort();
+                // Lấy tối đa 7 ngày gần nhất *kết thúc vào hoặc trước* ngày đang chọn
+                const relevantDates = allDates.filter(d => d <= selectedDate);
+                const startIndex = Math.max(0, relevantDates.length - 7);
+                const pastDays = relevantDates.slice(startIndex);
+
+
+                const historyData = pastDays.map(date => {
+                    const dayTasks = tasks.filter(task => task.date === date);
+                    const completed = dayTasks.filter(task => task.status === 'Completed').length;
+                    const total = dayTasks.length;
+                    // Trả về 0 nếu không có công việc nào trong ngày đó
+                    return total > 0 ? Math.round((completed / total) * 100) : 0;
+                });
+
+                const historyChartCtx = document.getElementById('historyChart')?.getContext('2d');
+                 if (!historyChartCtx) {
+                     console.error("Không tìm thấy context canvas của biểu đồ lịch sử.");
+                     hideLoading();
+                     return;
+                }
+                // Hủy biểu đồ cũ
+                if (historyChart) historyChart.destroy();
+
+                historyChart = new Chart(historyChartCtx, {
+                    type: 'bar',
+                    data: {
+                        // Sử dụng định dạng ngày ngắn gọn cho nhãn trục X
+                        labels: pastDays.map(date => new Date(`${date}T00:00:00Z`).toLocaleDateString('vi-VN', { day: 'numeric', month: 'numeric' })),
+                        datasets: [{
+                            label: 'Tỷ lệ hoàn thành (%)', // Đã dịch
+                            data: historyData,
+                            backgroundColor: primaryColor,
+                            borderColor: primaryColor,
+                            borderWidth: 1,
+                            borderRadius: 6, // Bo góc cột
+                            barThickness: 'flex', // Độ rộng cột linh hoạt
+                            maxBarThickness: 40 // Giới hạn độ rộng tối đa
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: { duration: 1000, easing: 'easeOutCubic' },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: { color: textColor, font: { family: 'Inter' }, stepSize: 20 },
+                                grid: { color: gridColor, drawBorder: false } // Màu lưới nhạt hơn
+                            },
+                            x: {
+                                ticks: { color: textColor, font: { family: 'Inter' } },
+                                grid: { display: false } // Ẩn lưới trục X
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }, // Ẩn chú giải (chỉ có 1 dataset)
+                            title: {
+                                display: true,
+                                text: 'Tỷ lệ hoàn thành gần đây (%)', // Đã dịch
+                                color: textColor,
+                                font: { size: 16, family: 'Poppins', weight: '500' },
+                                padding: { top: 5, bottom: 15 }
+                            },
+                            tooltip: {
+                                bodyFont: { family: 'Inter' },
+                                titleFont: { family: 'Poppins' },
+                                callbacks: {
+                                    title: function(context) {
+                                         // Hiển thị ngày đầy đủ trong tiêu đề tooltip
+                                         const index = context[0]?.dataIndex;
+                                         if (index !== undefined && pastDays[index]) {
+                                             return formatDate(pastDays[index]); // Sử dụng hàm formatDate
+                                         }
+                                         return '';
+                                    },
+                                    label: function(context) {
+                                        // Hiển thị tỷ lệ %
+                                        return `${context.dataset.label}: ${context.parsed.y}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // --- Cập nhật Insights ---
+                updateInsights(tasks, todayTasks, pastDays, historyData);
+
+            } catch (e) {
+                 console.error("Lỗi cập nhật biểu đồ:", e);
+                 // Có thể hiển thị thông báo lỗi cho người dùng
+                 // document.getElementById('chartError').textContent = "Lỗi khi tải biểu đồ.";
+            } finally {
+                hideLoading(); // Luôn ẩn loading dù thành công hay thất bại
+            }
+        }
+
+        function updateInsights(allTasks, todayTasks, pastWeekDays, pastWeekRates) {
+            const dailyCommentList = document.getElementById('dailyComment');
+            const weeklyCommentList = document.getElementById('weeklyComment');
+            if (!dailyCommentList || !weeklyCommentList) {
+                console.error("Không tìm thấy phần tử ul cho insights.");
+                return;
+            }
+
+            dailyCommentList.innerHTML = '';
+            weeklyCommentList.innerHTML = '';
+
+            const totalToday = todayTasks.length;
+            const completedToday = todayTasks.filter(task => task.status === 'Completed').length;
+            // Xử lý trường hợp chia cho 0
+            const todayCompletionRate = totalToday > 0 ? (completedToday / totalToday) * 100 : 0;
+
+            // --- Daily Insights (Nhận xét trong ngày) ---
+            const dailyItems = [];
+            dailyItems.push(`<li><strong>Công việc hôm nay</strong>: ${totalToday} (${completedToday} hoàn thành)</li>`);
+            // Thêm class nếu hoàn thành 100%
+            dailyItems.push(`<li class="${todayCompletionRate === 100 ? 'insight-completed' : ''}"><strong>Hoàn thành</strong>: ${todayCompletionRate.toFixed(0)}%</li>`);
+
+            if (totalToday > 0) {
+                // Tính thời gian trung bình, lọc bỏ các giá trị không hợp lệ
+                const durations = todayTasks.map(task => getTaskDuration(task.startTime, task.endTime)).filter(d => !isNaN(d) && d > 0);
+                if (durations.length > 0) {
+                    const avgDuration = durations.reduce((sum, dur) => sum + dur, 0) / durations.length;
+                    dailyItems.push(`<li><strong>Thời gian TB</strong>: ${avgDuration.toFixed(0)} phút</li>`);
+                } else {
+                    dailyItems.push(`<li><strong>Thời gian TB</strong>: N/A</li>`); // Nếu không có task nào có thời gian hợp lệ
+                }
+            }
+
+            let dailyAdvice = '';
+            if (totalToday === 0) {
+                dailyAdvice = "Hãy lên kế hoạch cho ngày hôm nay! Dù chỉ một việc nhỏ cũng tạo ra sự khác biệt.";
+            } else if (todayCompletionRate === 100) {
+                dailyAdvice = "Tuyệt vời! Đã hoàn thành tất cả công việc. Hãy chuẩn bị cho ngày mai!";
+            } else if (todayCompletionRate >= 75) {
+                dailyAdvice = `Làm tốt lắm! ${todayCompletionRate.toFixed(0)}% công việc đã xong. Cố gắng hoàn thành nốt nhé!`;
+            } else if (todayCompletionRate >= 40) {
+                dailyAdvice = `Tiến độ khá tốt. Tập trung vào công việc quan trọng tiếp theo nào.`;
+            } else {
+                dailyAdvice = `Cố lên nào! Hãy ưu tiên và giải quyết từng việc một.`;
+            }
+            if (dailyAdvice) {
+                dailyItems.push(`<li class="advice">${dailyAdvice}</li>`);
+            }
+
+            dailyCommentList.innerHTML = dailyItems.join('');
+            animateListItems(dailyCommentList); // Animation cho list items
+
+
+            // --- Weekly Insights (Nhận xét tuần) ---
+            const weeklyItems = [];
+            if (pastWeekDays.length === 0) {
+                weeklyItems.push(`<li>Không có dữ liệu công việc cho tuần qua.</li>`);
+                weeklyItems.push(`<li class="advice">Hãy bắt đầu ghi lại công việc hàng ngày để theo dõi tiến độ của bạn!</li>`);
+            } else {
+                // Lọc bỏ các giá trị NaN trước khi tính toán
+                const validRates = pastWeekRates.filter(rate => !isNaN(rate));
+                const averageCompletion = validRates.length > 0 ? validRates.reduce((sum, rate) => sum + rate, 0) / validRates.length : 0;
+
+                const totalTasksPastWeek = pastWeekDays.reduce((sum, date) => {
+                     const tasksOnDate = allTasks.filter(t => t.date === date).length;
+                     return sum + tasksOnDate;
+                }, 0);
+                const avgTasksPerDay = pastWeekDays.length > 0 ? totalTasksPastWeek / pastWeekDays.length : 0;
+
+                // Thêm class nếu tỷ lệ hoàn thành TB cao
+                weeklyItems.push(`<li class="${averageCompletion >= 80 ? 'insight-completed' : ''}"><strong>Hoàn thành TB (${pastWeekDays.length} ngày qua)</strong>: ${averageCompletion.toFixed(0)}%</li>`);
+                weeklyItems.push(`<li><strong>Công việc TB/Ngày</strong>: ${avgTasksPerDay.toFixed(1)}</li>`);
+
+                if (validRates.length > 0) {
+                    const maxRate = Math.max(...validRates);
+                    const minRate = Math.min(...validRates);
+                    // Tìm index của ngày tốt nhất/tệ nhất trong mảng validRates
+                    const bestDayIndicesInValid = validRates.map((rate, index) => rate === maxRate ? index : -1).filter(index => index !== -1);
+                    const worstDayIndicesInValid = validRates.map((rate, index) => rate === minRate ? index : -1).filter(index => index !== -1);
+
+                    // Map index từ validRates trở lại pastWeekDays
+                    // Cần cẩn thận nếu validRates và pastWeekRates không cùng độ dài (do filter NaN)
+                    // Cách an toàn hơn: tìm index trong pastWeekRates gốc
+                    const bestDayIndices = pastWeekRates.map((rate, index) => rate === maxRate ? index : -1).filter(index => index !== -1);
+                    const worstDayIndices = pastWeekRates.map((rate, index) => rate === minRate ? index : -1).filter(index => index !== -1);
+
+
+                    if (bestDayIndices.length > 0 && bestDayIndices[0] < pastWeekDays.length) {
+                         const bestDayDate = pastWeekDays[bestDayIndices[0]]; // Lấy ngày đầu tiên tốt nhất
+                         weeklyItems.push(`<li class="insight-completed"><strong>Hiệu suất cao nhất</strong>: ${getDayName(bestDayDate)} (${maxRate.toFixed(0)}%)</li>`);
+                    }
+                    // Chỉ hiển thị ngày tệ nhất nếu khác ngày tốt nhất và không phải là 0% vào ngày không có task
+                    if (worstDayIndices.length > 0 && worstDayIndices[0] < pastWeekDays.length) {
+                         const worstDayDate = pastWeekDays[worstDayIndices[0]]; // Lấy ngày đầu tiên tệ nhất
+                         const tasksOnWorstDay = allTasks.filter(t => t.date === worstDayDate).length;
+                         // Kiểm tra xem đó có phải là ngày năng suất thấp thực sự không (không phải chỉ là ngày nghỉ)
+                         if (!bestDayIndices.includes(worstDayIndices[0]) && (minRate > 0 || tasksOnWorstDay > 0)) {
+                              weeklyItems.push(`<li><strong>Hiệu suất thấp nhất</strong>: ${getDayName(worstDayDate)} (${minRate.toFixed(0)}%)</li>`);
+                         }
+                    }
+                }
+
+
+                let weeklyAdvice = '';
+                if (averageCompletion >= 80) {
+                    weeklyAdvice = "Duy trì rất tốt! Hãy tiếp tục phát huy.";
+                } else if (averageCompletion >= 50) {
+                    weeklyAdvice = "Kết quả ổn định. Xem xét các ngày hiệu suất thấp để cải thiện.";
+                } else {
+                    weeklyAdvice = "Tập trung xây dựng thói quen nhất quán. Bắt đầu từ những việc nhỏ!";
+                }
+                 if (weeklyAdvice) {
+                    weeklyItems.push(`<li class="advice">${weeklyAdvice}</li>`);
+                }
+            }
+
+            weeklyCommentList.innerHTML = weeklyItems.join('');
+            animateListItems(weeklyCommentList); // Animation cho list items
+        }
+
+        function animateListItems(listElement) {
+             if (!listElement) return;
+             const items = listElement.querySelectorAll('li');
+             if (items.length > 0) {
+                 // Animation xuất hiện cho các mục trong danh sách
+                 gsap.from(items, {
+                     opacity: 0,
+                     y: 15, // Trượt nhẹ từ dưới lên
+                     duration: 0.4,
+                     stagger: 0.08, // Xuất hiện lần lượt
+                     ease: "power2.out"
+                 });
+             }
+        }
+
+        // --- Initial Load & Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                setTheme(); // Đặt theme sáng/tối dựa trên hệ thống
+                // Trì hoãn khởi tạo particles một chút để đảm bảo container tồn tại
+                setTimeout(initParticles, 100);
+                initFlatpickr(); // Tự xử lý việc thử lại nếu cần
+                setDayColors(); // Đặt màu sắc dựa trên ngày hiện tại
+                loadTasks(); // Tải công việc cho ngày hiện tại
+                updateCharts(); // Cập nhật biểu đồ (tự kiểm tra Chart.js)
+                registerServiceWorker(); // Đăng ký PWA
+
+                // Lắng nghe thay đổi theme hệ thống
+                window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", setTheme);
+
+                // Tùy chọn: Tải lịch sử cho ngày có công việc gần nhất khi mở ứng dụng
+                // const lastTaskDate = getTaskDates().pop();
+                // if (lastTaskDate && historyDateInstance) {
+                //      historyDateInstance.setDate(lastTaskDate, false); // Đặt ngày mà không kích hoạt onChange
+                //      loadHistory(lastTaskDate);
+                // }
+
+                // --- Initial GSAP Animations ---
+                // Animation cho các thành phần chính khi tải trang
+                gsap.from(".container > h1", { opacity: 0, y: -40, duration: 0.8, delay: 0.2, ease: "power3.out" });
+                gsap.from(".date-picker", { opacity: 0, y: -30, duration: 0.7, delay: 0.4, ease: "power3.out" });
+                gsap.from(".task-form", { opacity: 0, scale: 0.95, y: 30, duration: 0.7, delay: 0.6, ease: "back.out(1.2)" });
+                // Delay animation cho bảng, biểu đồ, insights, history nhiều hơn một chút
+                gsap.from(".table-responsive, .charts, .insights, .history", {
+                    opacity: 0,
+                    y: 40,
+                    duration: 0.8,
+                    stagger: 0.15, // Xuất hiện lần lượt
+                    delay: 1.0, // Tăng delay
+                    ease: "power3.out"
+                });
+
+            } catch (e) {
+                 console.error("Lỗi trong quá trình khởi tạo DOMContentLoaded:", e);
+                 alert("Đã xảy ra lỗi khi tải ứng dụng. Vui lòng thử làm mới trang.");
+            }
+        });
+
+    </script>
+</body>
+</html>
